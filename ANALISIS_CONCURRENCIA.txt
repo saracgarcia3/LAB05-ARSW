@@ -1,0 +1,30 @@
+ANALISIS DE CONCURRENCIA – BlueprintsRESTAPI (Parte III)
+
+1) Entorno concurrente
+El API REST atiende múltiples peticiones en paralelo (un hilo por request). La colección en memoria es compartida, por lo que operaciones simultáneas pueden interlevarse.
+
+2) Condiciones de carrera detectadas
+- Crear (saveBlueprint): patrón “check-then-act”. Dos hilos pueden verificar “no existe” y ambos insertar → duplicados.
+- Actualizar (updatePoints): dos hilos pueden pisarse los cambios (last-write-wins) o leer/escribir estados intermedios.
+- Lecturas/iteraciones sobre estructura no thread-safe (HashMap) mientras otro hilo escribe → comportamiento indefinido / ConcurrentModificationException.
+
+3) Regiones críticas
+- Acceso al mapa de planos (add/update/delete).
+- Secuencias no atómicas “verificar y luego actuar”.
+
+4) Solución aplicada 
+- Se cambió la colección a **ConcurrentHashMap** (thread-safe).
+- Se usa una **llave normalizada** (autor, nombre en minúsculas) para mantener  case-insensitive.
+- Operaciones atómicas:
+  * **saveBlueprint** → `putIfAbsent` 
+  * **updatePoints** → `computeIfPresent` (lee-modifica-escribe atómico).
+  * **deleteBlueprint** → `remove`.
+- Iteraciones “weakly consistent” de `ConcurrentHashMap` (sin ConcurrentModificationException).
+- Preferencia por **inmutabilidad** al actualizar: se crea un nuevo `Blueprint` con los puntos nuevos en lugar de mutar referencias compartidas.
+- `Tuple` implementa `equals/hashCode` para uso correcto como llave.
+
+5) Verificación
+- Pruebas manuales y/o automatizadas con POST concurrentes → solo 1 creación (201), el resto 403.
+- PUT concurrentes → sin excepciones; el plano queda en un estado válido (último en llegar gana).
+- Lecturas concurrentes durante escrituras → sin `ConcurrentModificationException`.
+

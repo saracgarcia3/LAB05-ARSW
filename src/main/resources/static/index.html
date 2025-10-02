@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cliente REST – Blueprints</title>
+
+  <script src="/webjars/jquery/3.1.0/jquery.min.js"></script>
+  <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <style>
+    body { padding: 24px; }
+    #bp-canvas { border: 1px solid #ddd; border-radius: 8px; }
+    .table-actions { width: 140px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="h3">Cliente REST – Blueprints</h1>
+
+    <div class="row" style="margin: 12px 0 24px">
+      <div class="col-sm-6">
+        <label for="author-input">Autor</label>
+        <div class="input-group">
+          <input id="author-input" class="form-control" placeholder="p.ej. sara" />
+          <div class="input-group-btn">
+            <button id="btn-get" class="btn btn-primary"
+                    onclick="(window.app&&app.updateBlueprints&&app.updateBlueprints()) || console.error('app.updateBlueprints no disponible');">
+              Get blueprints
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <p class="lead" style="margin-top:26px">
+          Autor seleccionado: <strong id="author-name">—</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-7">
+        <table id="bp-table" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Plano</th>
+              <th># Puntos</th>
+              <th class="table-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <p class="h4">
+          Total de puntos: <span id="total-points">0</span>
+        </p>
+      </div>
+
+      <div class="col-sm-5">
+        <p class="h4">Canvas</p>
+        <p>Plano actual: <strong id="current-bp">—</strong></p>
+        <canvas id="bp-canvas" width="480" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/apimock.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+</body>
+</html>
